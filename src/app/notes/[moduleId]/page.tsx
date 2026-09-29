@@ -5,19 +5,20 @@ import { ArrowLeft, ExternalLink } from 'lucide-react';
 export function generateStaticParams() {
   return [
     { moduleId: 'module-1' },
-    { moduleId: 'module-2' }
+    { moduleId: 'module-2' },
+    { moduleId: 'classnotes' }
   ];
 }
 
 export default async function NotesPage({ params }: { params: Promise<{ moduleId: string }> }) {
   const { moduleId } = await params;
   
-  if (moduleId !== 'module-1' && moduleId !== 'module-2') {
+  if (moduleId !== 'module-1' && moduleId !== 'module-2' && moduleId !== 'classnotes') {
     notFound();
   }
 
-  const moduleName = moduleId === 'module-1' ? 'Module 1' : 'Module 2';
-  const pdfPath = moduleId === 'module-1' ? '/notes/module-1/toc_module1.pdf' : '/notes/module-2/1.pdf';
+  const moduleName = moduleId === 'classnotes' ? 'Class' : moduleId === 'module-1' ? 'Module 1' : 'Module 2';
+  const pdfPath = moduleId === 'classnotes' ? '/notes/classnotes/class-notes.pdf' : moduleId === 'module-1' ? '/notes/module-1/toc_module1.pdf' : '/notes/module-2/1.pdf';
   
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
