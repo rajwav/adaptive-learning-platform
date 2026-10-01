@@ -34,7 +34,7 @@ export default async function OSNotesPage({ params }: { params: Promise<{ module
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
           <div className="h-6 w-px bg-slate-800 mx-2"></div>
-          <h1 className="text-slate-200 font-medium">OS {moduleName} Notes</h1>
+          <h1 className="text-slate-200 font-medium">{moduleName === "Class Notes" ? "OS Class Notes" : `OS ${moduleName} Notes`}</h1>
         </div>
         {pdfPath && (
           <a 
