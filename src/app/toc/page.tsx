@@ -6,7 +6,10 @@ import Link from 'next/link';
 import { useLearningStore } from '@/store/useLearningStore';
 
 export default function TOCDashboard() {
-  const { isInitialized, topics, modules, progress, nextAction, errors, targets } = useLearningStore();
+  const { isInitialized, topics: allTopics, modules: allModules, progress, nextAction, errors, targets } = useLearningStore();
+  const modules = allModules.filter(m => m.subjectId === 'sub_toc');
+  const moduleIds = new Set(modules.map(m => m.id));
+  const topics = allTopics.filter(t => moduleIds.has(t.moduleId));
 
   if (!isInitialized) return <div className="p-12 text-center text-slate-400">Loading Engine...</div>;
 

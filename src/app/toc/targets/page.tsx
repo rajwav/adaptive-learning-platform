@@ -7,7 +7,12 @@ import { useLearningStore } from '@/store/useLearningStore';
 import { Target } from '@/types';
 
 export default function TargetsCenter() {
-  const { targets, topics, progress, updateTarget, deleteTarget, isInitialized } = useLearningStore();
+  const store = useLearningStore();
+  const { targets: allTargets, progress, updateTarget, deleteTarget, isInitialized } = store;
+  const modules = store.modules.filter(m => m.subjectId === 'sub_toc');
+  const moduleIds = new Set(modules.map(m => m.id));
+  const topics = store.topics.filter(t => moduleIds.has(t.moduleId));
+  const targets = allTargets; // keeping original behavior
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!isInitialized) return <div className="p-12 text-center text-slate-400">Loading Engine...</div>;

@@ -1,37 +1,47 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/store/useAppStore';
+import { useLearningStore } from '@/store/useLearningStore';
 import { ArrowRight, Cpu, Network } from 'lucide-react';
 
 export default function SubjectSelection() {
   const router = useRouter();
   const setTransitioning = useAppStore((state) => state.setTransitioning);
-  const [selected, setSelected] = useState<string | null>(null);
+  const { isInitialized, subjects, init } = useLearningStore();
+  const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [selectedName, setSelectedName] = useState<string | null>(null);
 
-  const handleSelect = (subject: string) => {
-    setSelected(subject);
+  useEffect(() => {
+    if (!isInitialized) {
+      init();
+    }
+  }, [isInitialized, init]);
+
+  const handleSelect = (slug: string, name: string) => {
+    setSelectedSlug(slug);
+    setSelectedName(name);
     setTransitioning(true);
     
     // Simulate cinematic transition delay before navigating
     setTimeout(() => {
-      router.push('/toc');
+      router.push('/' + slug);
     }, 2500);
   };
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-50 flex flex-col items-center justify-center p-8 overflow-hidden relative">
       
-      {/* Background static nodes (simulating scientific lab feel) */}
+      {/* Background static nodes */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-900 rounded-full mix-blend-screen filter blur-[100px]" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-900 rounded-full mix-blend-screen filter blur-[100px]" />
       </div>
 
       <AnimatePresence>
-        {!selected && (
+        {!selectedSlug && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -44,27 +54,34 @@ export default function SubjectSelection() {
               WHAT ARE YOU LEARNING?
             </h1>
 
-            <div className="w-full max-w-sm">
-              <button
-                onClick={() => handleSelect('toc')}
-                className="group relative w-full border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/50 backdrop-blur-sm p-8 rounded-xl transition-all duration-500 overflow-hidden text-left"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-mono text-blue-400 tracking-wider">MODULE 01</span>
-                    <Cpu className="w-5 h-5 text-neutral-500 group-hover:text-blue-400 transition-colors" />
-                  </div>
-                  
-                  <h2 className="text-3xl font-medium tracking-tight mb-2">TOC</h2>
-                  <p className="text-neutral-400 font-light mb-8">Theory of Computation</p>
-                  
-                  <div className="flex items-center text-sm text-neutral-300 group-hover:text-blue-300 transition-colors">
-                    Explore Environment <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </button>
+            <div className="w-full max-w-sm flex flex-col gap-6">
+              {!isInitialized ? (
+                 <div className="p-12 text-center text-slate-400">Loading Engine...</div>
+              ) : (
+                subjects.map((subject, index) => (
+                  <button
+                    key={subject.id}
+                    onClick={() => handleSelect(subject.slug, subject.name)}
+                    className="group relative w-full border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-800/50 backdrop-blur-sm p-8 rounded-xl transition-all duration-500 overflow-hidden text-left"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-xs font-mono text-blue-400 tracking-wider">SUBJECT 0{index + 1}</span>
+                        <Cpu className="w-5 h-5 text-neutral-500 group-hover:text-blue-400 transition-colors" />
+                      </div>
+                      
+                      <h2 className="text-3xl font-medium tracking-tight mb-2">{subject.slug.toUpperCase()}</h2>
+                      <p className="text-neutral-400 font-light mb-8">{subject.name}</p>
+                      
+                      <div className="flex items-center text-sm text-neutral-300 group-hover:text-blue-300 transition-colors">
+                        Explore Environment <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
             </div>
           </motion.div>
         )}
@@ -72,7 +89,7 @@ export default function SubjectSelection() {
 
       {/* Cinematic Transition Overlay */}
       <AnimatePresence>
-        {selected === 'toc' && (
+        {selectedSlug && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -90,7 +107,7 @@ export default function SubjectSelection() {
               }}
             />
             
-            {/* Animating State Nodes (Automata Concept) */}
+            {/* Animating State Nodes */}
             <div className="relative flex items-center justify-center">
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
@@ -124,7 +141,7 @@ export default function SubjectSelection() {
               transition={{ delay: 1.5, duration: 0.5 }}
               className="absolute bottom-1/4 text-center"
             >
-              <h2 className="text-2xl font-light tracking-[0.2em] text-blue-100">THEORY OF COMPUTATION</h2>
+              <h2 className="text-2xl font-light tracking-[0.2em] text-blue-100">{selectedName?.toUpperCase()}</h2>
               <p className="text-blue-500/70 text-sm tracking-widest mt-2 uppercase font-mono">Initializing Environment...</p>
             </motion.div>
           </motion.div>

@@ -7,7 +7,10 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SyllabusPage() {
-  const { isInitialized, modules, topics, progress } = useLearningStore();
+  const { isInitialized, modules: allModules, topics: allTopics, progress } = useLearningStore();
+  const modules = allModules.filter(m => m.subjectId === 'sub_toc');
+  const moduleIds = new Set(modules.map(m => m.id));
+  const topics = allTopics.filter(t => moduleIds.has(t.moduleId));
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({'mod_1': true});
 
   if (!isInitialized) return <div className="p-12 text-center text-slate-400">Loading Syllabus...</div>;

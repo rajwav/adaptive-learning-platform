@@ -69,46 +69,75 @@ import { MODULE_2_QUESTIONS } from './content/questions2';
 
 export const TOC_QUESTIONS: Question[] = [...MODULE_1_QUESTIONS, ...MODULE_2_QUESTIONS];
 
-export async function initializeSeedData() {
-  const existing = await subjectsRepo.getAll();
-  if (existing.length === 0) {
-    await subjectsRepo.setAll([TOC_SUBJECT]);
-    await modulesRepo.setAll(TOC_MODULES);
-    await topicsRepo.setAll(TOC_TOPICS);
-    await questionsRepo.setAll(TOC_QUESTIONS);
-    
-    const initialProgress: TopicProgress[] = TOC_TOPICS.map(t => ({
-      topicId: t.id,
-      status: 'NOT_STARTED',
-      confidence: 0,
-      mastery: 0,
-      practiceAccuracy: 0,
-      questionsAttempted: 0,
-      questionsCorrect: 0,
-      reviewCount: 0,
-      successCount: 0,
-      failureCount: 0
-    }));
-    await progressRepo.setAll(initialProgress);
-  } else {
-    // SYNC LOGIC: Ensure curriculum updates propagate to IDB without deleting user progress
-    await subjectsRepo.setAll([TOC_SUBJECT]);
-    await modulesRepo.setAll(TOC_MODULES);
-    
-    // Merge topics (hard replace topics so titles/order match code exactly)
-    await topicsRepo.setAll(TOC_TOPICS);
-    await questionsRepo.setAll(TOC_QUESTIONS);
 
-    const existingProgress = await progressRepo.getAll();
-    const existingProgressMap = new Map(existingProgress.map(p => [p.topicId, p]));
-    
-    let needsUpdate = false;
-    for (const topic of TOC_TOPICS) {
-      if (!existingProgressMap.has(topic.id)) {
-        needsUpdate = true;
-        existingProgress.push({
-          topicId: topic.id,
-          status: 'NOT_STARTED',
+import { osSubject, osModules } from './seed-os';
+import { osTopics } from './seed-os-topics';
+import { osQuestions } from './content/os/osQuestions';
+
+export async function initializeSeedData() {
+  // Fetch existing
+  const existingSubjects = await subjectsRepo.getAll();
+  const existingModules = await modulesRepo.getAll();
+  const existingTopics = await topicsRepo.getAll();
+  const existingQuestions = await questionsRepo.getAll();
+  const existingProgress = await progressRepo.getAll();
+
+  // 1. Deduplicate everything currently in IndexedDB
+  const uniqueSubjects = new Map();
+  existingSubjects.forEach(s => uniqueSubjects.set(s.id, s));
+  
+  const uniqueModules = new Map();
+  existingModules.forEach(m => uniqueModules.set(m.id, m));
+  
+  const uniqueTopics = new Map();
+  existingTopics.forEach(t => uniqueTopics.set(t.id, t));
+  
+  const uniqueQuestions = new Map();
+  existingQuestions.forEach(q => uniqueQuestions.set(q.id, q));
+  
+  const uniqueProgress = new Map();
+  existingProgress.forEach(p => {
+    const existing = uniqueProgress.get(p.topicId);
+    if (!existing) {
+      uniqueProgress.set(p.topicId, p);
+    } else {
+      // Keep the one with actual progress if duplicates exist
+      if ((p.mastery || 0) > (existing.mastery || 0) || (p.questionsAttempted || 0) > (existing.questionsAttempted || 0) || (p.status !== 'NOT_STARTED' && existing.status === 'NOT_STARTED')) {
+        uniqueProgress.set(p.topicId, p);
+      }
+    }
+  });
+
+  // 2. Ensure all hardcoded seed data is merged in
+  const allSeedSubjects = [TOC_SUBJECT, osSubject];
+  const allSeedModules = [...TOC_MODULES, ...osModules];
+  const allSeedTopics = [...TOC_TOPICS, ...osTopics];
+  const allSeedQuestions = [...TOC_QUESTIONS, ...osQuestions];
+  
+  let changed = false;
+
+  for (const s of allSeedSubjects) {
+    if (!uniqueSubjects.has(s.id)) {
+      uniqueSubjects.set(s.id, s);
+      changed = true;
+    }
+  }
+
+  for (const m of allSeedModules) {
+    if (!uniqueModules.has(m.id)) {
+      uniqueModules.set(m.id, m);
+      changed = true;
+    }
+  }
+
+  for (const t of allSeedTopics) {
+    if (!uniqueTopics.has(t.id)) {
+      uniqueTopics.set(t.id, t);
+      // Initialize progress if topic is completely new
+      if (!uniqueProgress.has(t.id)) {
+        uniqueProgress.set(t.id, {
+          topicId: t.id,
+          status: 'NOT_STARTED' as any,
           confidence: 0,
           mastery: 0,
           practiceAccuracy: 0,
@@ -119,10 +148,23 @@ export async function initializeSeedData() {
           failureCount: 0
         });
       }
+      changed = true;
     }
-    
-    if (needsUpdate) {
-      await progressRepo.setAll(existingProgress);
+  }
+
+  for (const q of allSeedQuestions) {
+    if (!uniqueQuestions.has(q.id)) {
+      uniqueQuestions.set(q.id, q);
+      changed = true;
     }
+  }
+
+  // If there were duplicates removed OR new data added, update IndexedDB
+  if (changed || existingSubjects.length !== uniqueSubjects.size || existingTopics.length !== uniqueTopics.size || existingProgress.length !== uniqueProgress.size) {
+    await subjectsRepo.setAll(Array.from(uniqueSubjects.values()));
+    await modulesRepo.setAll(Array.from(uniqueModules.values()));
+    await topicsRepo.setAll(Array.from(uniqueTopics.values()));
+    await questionsRepo.setAll(Array.from(uniqueQuestions.values()));
+    await progressRepo.setAll(Array.from(uniqueProgress.values()));
   }
 }

@@ -18,7 +18,12 @@ interface HistoryItem {
 }
 
 export default function PracticeSession() {
-  const { isInitialized, questions, topics, nextAction, errors, attempts, recordPractice, progress } = useLearningStore();
+  const store = useLearningStore();
+  const { isInitialized, nextAction, errors, attempts, recordPractice, progress } = store;
+  const modules = store.modules.filter(m => m.subjectId === 'sub_toc');
+  const moduleIds = new Set(modules.map(m => m.id));
+  const topics = store.topics.filter(t => moduleIds.has(t.moduleId));
+  const questions = store.questions.filter(q => topics.some(t => t.id === q.topicId));
   
   const [phase, setPhase] = useState<SessionPhase>('START');
   const [mode, setMode] = useState<SessionMode>('PRACTICE');

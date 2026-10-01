@@ -7,7 +7,11 @@ import { useLearningStore } from '@/store/useLearningStore';
 import { ErrorType } from '@/types';
 
 export default function ErrorLab() {
-  const { errors, topics, updateErrorType, isInitialized } = useLearningStore();
+  const store = useLearningStore();
+  const { errors, updateErrorType, isInitialized } = store;
+  const modules = store.modules.filter(m => m.subjectId === 'sub_toc');
+  const moduleIds = new Set(modules.map(m => m.id));
+  const topics = store.topics.filter(t => moduleIds.has(t.moduleId));
   const [selectedError, setSelectedError] = useState<string | null>(null);
 
   if (!isInitialized) return <div className="p-12 text-center text-slate-400">Loading Engine...</div>;

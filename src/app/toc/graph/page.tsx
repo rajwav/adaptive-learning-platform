@@ -41,7 +41,11 @@ function calculateLayers(topics: any[]) {
 }
 
 export default function KnowledgeGraph() {
-  const { topics, progress } = useLearningStore();
+  const store = useLearningStore();
+  const { progress } = store;
+  const modules = store.modules.filter(m => m.subjectId === 'sub_toc');
+  const moduleIds = new Set(modules.map(m => m.id));
+  const topics = store.topics.filter(t => moduleIds.has(t.moduleId));
   const [filterMod, setFilterMod] = useState('ALL');
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [transform, setTransform] = useState({ x: 0, y: 50, scale: 0.8 });
@@ -146,10 +150,9 @@ export default function KnowledgeGraph() {
             <span className="text-[10px] uppercase tracking-widest text-slate-500 font-mono">Module</span>
             <select className="bg-slate-900 border border-slate-700 rounded p-1 text-sm outline-none focus:border-blue-500" value={filterMod} onChange={e => setFilterMod(e.target.value)}>
               <option value="ALL">All Modules</option>
-              <option value="mod_1">Module I</option>
-              <option value="mod_2">Module II</option>
-              <option value="mod_3">Module III</option>
-              <option value="mod_4">Module IV</option>
+              {modules.map(m => (
+                <option key={m.id} value={m.id}>{m.title.split(':')[0]}</option>
+              ))}
             </select>
           </div>
           <div className="flex flex-col gap-1">
