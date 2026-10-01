@@ -19,7 +19,8 @@ export default function ErrorLab() {
   // Analysis
   const getTopicName = (id: string) => topics.find(t => t.id === id)?.title || id;
 
-  const errorsByTopic = errors.reduce((acc, err) => {
+  const osErrors = errors.filter(e => topics.some(t => t.id === e.topicId));
+  const errorsByTopic = osErrors.reduce((acc, err) => {
     acc[err.topicId] = (acc[err.topicId] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);

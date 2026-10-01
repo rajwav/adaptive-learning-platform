@@ -14,9 +14,12 @@ export default function OSDashboard() {
   if (!isInitialized) return <div className="p-12 text-center text-slate-400">Loading Engine...</div>;
 
   // OVERALL PROGRESS
-  const startedTopics = progress.filter(p => p.status !== 'NOT_STARTED').length;
-  const completedTopics = progress.filter(p => p.status === 'COMPLETED' || p.status === 'MASTERED').length;
-  const masteredTopics = progress.filter(p => p.status === 'MASTERED').length;
+  const osTopicIds = new Set(topics.map(t => t.id));
+  const osProgress = progress.filter(p => osTopicIds.has(p.topicId));
+
+  const startedTopics = osProgress.filter(p => p.status !== 'NOT_STARTED').length;
+  const completedTopics = osProgress.filter(p => p.status === 'COMPLETED' || p.status === 'MASTERED').length;
+  const masteredTopics = osProgress.filter(p => p.status === 'MASTERED').length;
   
   // WHAT REMAINS
   const remainsByModule = modules.map(m => {
@@ -30,6 +33,9 @@ export default function OSDashboard() {
 
   // NEXT SYLLABUS ITEM logic
   let recommendedTopicId = nextAction?.topicId;
+  if (recommendedTopicId && !osTopicIds.has(recommendedTopicId)) {
+    recommendedTopicId = undefined;
+  }
   let recommendedReason = nextAction?.reason[0];
   let isCurriculumProgression = true;
   
@@ -69,7 +75,7 @@ export default function OSDashboard() {
     <div className="space-y-12">
       <header className="flex justify-between items-end border-b border-slate-800 pb-6">
         <div>
-          <h1 className="text-3xl font-light mb-2">Theory of Computation</h1>
+          <h1 className="text-3xl font-light mb-2">Operating Systems</h1>
           <p className="text-slate-400">Personal Learning Laboratory</p>
         </div>
         <div className="text-right">
@@ -150,31 +156,19 @@ export default function OSDashboard() {
           <section className="mt-8">
             <h2 className="text-sm font-mono text-slate-500 mb-4 tracking-widest uppercase">Study Materials</h2>
             <div className="space-y-4">
-              
               <div className="border border-slate-800 bg-slate-900/20 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h3 className="text-lg font-medium text-slate-200">CLASS NOTES</h3>
-                  <p className="text-slate-400">Complete classroom notes</p>
-                </div>
-                <Link href="/notes/classnotes" className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <BookOpen className="w-4 h-4"/> View Notes
-                </Link>
-              </div>
-              
-<div className="border border-slate-800 bg-slate-900/20 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-medium text-slate-200">MODULE 1</h3>
-                  <p className="text-slate-400">Finite Automata / Module 1 Notes</p>
+                  <h3 className="text-lg font-medium text-slate-200">OS MODULE 1</h3>
+                  <p className="text-slate-400">OS Basics, Processes, Threads, CPU Scheduling</p>
                 </div>
                 <Link href="/os/notes/module-1" className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
                   <BookOpen className="w-4 h-4"/> View Notes
                 </Link>
               </div>
-              
               <div className="border border-slate-800 bg-slate-900/20 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                  <h3 className="text-lg font-medium text-slate-200">MODULE 2</h3>
-                  <p className="text-slate-400">Regular Expressions, Regular Grammars, Pumping Lemma, Closure Properties / Module 2 Notes</p>
+                  <h3 className="text-lg font-medium text-slate-200">OS MODULE 2</h3>
+                  <p className="text-slate-400">Process Synchronization, Deadlocks</p>
                 </div>
                 <Link href="/os/notes/module-2" className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
                   <BookOpen className="w-4 h-4"/> View Notes

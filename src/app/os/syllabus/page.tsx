@@ -11,7 +11,7 @@ export default function SyllabusPage() {
   const modules = allModules.filter(m => m.subjectId === 'os');
   const moduleIds = new Set(modules.map(m => m.id));
   const topics = allTopics.filter(t => moduleIds.has(t.moduleId));
-  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({'mod_1': true});
+  const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({'os-mod-1': true});
 
   if (!isInitialized) return <div className="p-12 text-center text-slate-400">Loading Syllabus...</div>;
 
