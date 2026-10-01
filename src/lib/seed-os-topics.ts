@@ -45,9 +45,7 @@ export const osTopics: Topic[] = [
     "title": "Personal Computer Systems",
     "description": "Learn about Personal Computer Systems.",
     "order": 5,
-    "prerequisites": [
-      "os_m1_1"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_6",
@@ -55,9 +53,7 @@ export const osTopics: Topic[] = [
     "title": "Parallel Systems",
     "description": "Learn about Parallel Systems.",
     "order": 6,
-    "prerequisites": [
-      "os_m1_1"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_7",
@@ -65,9 +61,7 @@ export const osTopics: Topic[] = [
     "title": "Distributed Systems",
     "description": "Learn about Distributed Systems.",
     "order": 7,
-    "prerequisites": [
-      "os_m1_6"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_8",
@@ -75,9 +69,7 @@ export const osTopics: Topic[] = [
     "title": "Real-Time Systems",
     "description": "Learn about Real-Time Systems.",
     "order": 8,
-    "prerequisites": [
-      "os_m1_1"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_9",
@@ -126,7 +118,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Process Concept.",
     "order": 13,
     "prerequisites": [
-      "os_m1_12"
+      "os_m1_3"
     ]
   },
   {
@@ -146,7 +138,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Process Management.",
     "order": 15,
     "prerequisites": [
-      "os_m1_14"
+      "os_m1_16"
     ]
   },
   {
@@ -156,7 +148,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about PCB and Context Switching.",
     "order": 16,
     "prerequisites": [
-      "os_m1_15"
+      "os_m1_14"
     ]
   },
   {
@@ -165,9 +157,7 @@ export const osTopics: Topic[] = [
     "title": "Interrupts",
     "description": "Learn about Interrupts.",
     "order": 17,
-    "prerequisites": [
-      "os_m1_16"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_18",
@@ -176,7 +166,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Interprocess Communication.",
     "order": 18,
     "prerequisites": [
-      "os_m1_15"
+      "os_m1_13"
     ]
   },
   {
@@ -205,9 +195,7 @@ export const osTopics: Topic[] = [
     "title": "Thread Operations",
     "description": "Learn about Thread Operations.",
     "order": 21,
-    "prerequisites": [
-      "os_m1_19"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_22",
@@ -227,7 +215,7 @@ export const osTopics: Topic[] = [
     "order": 23,
     "prerequisites": [
       "os_m1_16",
-      "os_m1_22"
+      "os_m1_19"
     ]
   },
   {
@@ -256,9 +244,7 @@ export const osTopics: Topic[] = [
     "title": "Scheduling Objectives",
     "description": "Learn about Scheduling Objectives.",
     "order": 26,
-    "prerequisites": [
-      "os_m1_23"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_27",
@@ -267,7 +253,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Scheduling Criteria.",
     "order": 27,
     "prerequisites": [
-      "os_m1_26"
+      "os_m1_23"
     ]
   },
   {
@@ -276,9 +262,7 @@ export const osTopics: Topic[] = [
     "title": "Scheduling Priorities",
     "description": "Learn about Scheduling Priorities.",
     "order": 28,
-    "prerequisites": [
-      "os_m1_23"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_29",
@@ -287,6 +271,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about FCFS Scheduling.",
     "order": 29,
     "prerequisites": [
+      "os_m1_25",
       "os_m1_27"
     ]
   },
@@ -307,8 +292,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about SRTF / Preemptive SJF Scheduling.",
     "order": 31,
     "prerequisites": [
-      "os_m1_30",
-      "os_m1_25"
+      "os_m1_30"
     ]
   },
   {
@@ -318,8 +302,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Priority Scheduling.",
     "order": 32,
     "prerequisites": [
-      "os_m1_29",
-      "os_m1_28"
+      "os_m1_27"
     ]
   },
   {
@@ -329,8 +312,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Round Robin Scheduling.",
     "order": 33,
     "prerequisites": [
-      "os_m1_29",
-      "os_m1_25"
+      "os_m1_29"
     ]
   },
   {
@@ -360,9 +342,7 @@ export const osTopics: Topic[] = [
     "title": "CPU-I/O Burst Cycle",
     "description": "Learn about CPU-I/O Burst Cycle.",
     "order": 36,
-    "prerequisites": [
-      "os_m1_23"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_37",
@@ -381,8 +361,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Context-Switch Overhead.",
     "order": 38,
     "prerequisites": [
-      "os_m1_37",
-      "os_m1_33"
+      "os_m1_37"
     ]
   },
   {
@@ -391,9 +370,7 @@ export const osTopics: Topic[] = [
     "title": "Demand Scheduling",
     "description": "Learn about Demand Scheduling.",
     "order": 39,
-    "prerequisites": [
-      "os_m1_34"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_40",
@@ -401,9 +378,7 @@ export const osTopics: Topic[] = [
     "title": "Real-Time Scheduling",
     "description": "Learn about Real-Time Scheduling.",
     "order": 40,
-    "prerequisites": [
-      "os_m1_23"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_41",
@@ -411,9 +386,7 @@ export const osTopics: Topic[] = [
     "title": "Thread Scheduling",
     "description": "Learn about Thread Scheduling.",
     "order": 41,
-    "prerequisites": [
-      "os_m1_23"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m1_42",
@@ -421,9 +394,7 @@ export const osTopics: Topic[] = [
     "title": "Multiprocessor Scheduling",
     "description": "Learn about Multiprocessor Scheduling.",
     "order": 42,
-    "prerequisites": [
-      "os_m1_23"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m2_1",
@@ -432,7 +403,8 @@ export const osTopics: Topic[] = [
     "description": "Learn about Process Synchronization Background.",
     "order": 1,
     "prerequisites": [
-      "os_m1_18"
+      "os_m1_18",
+      "os_m1_19"
     ]
   },
   {
@@ -501,9 +473,7 @@ export const osTopics: Topic[] = [
     "title": "Test-and-Set",
     "description": "Learn about Test-and-Set.",
     "order": 8,
-    "prerequisites": [
-      "os_m2_7"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m2_9",
@@ -511,9 +481,7 @@ export const osTopics: Topic[] = [
     "title": "Compare-and-Swap",
     "description": "Learn about Compare-and-Swap.",
     "order": 9,
-    "prerequisites": [
-      "os_m2_7"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m2_10",
@@ -522,8 +490,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Mutex Locks.",
     "order": 10,
     "prerequisites": [
-      "os_m2_7",
-      "os_m2_5"
+      "os_m2_7"
     ]
   },
   {
@@ -573,7 +540,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Dining Philosophers.",
     "order": 15,
     "prerequisites": [
-      "os_m2_14"
+      "os_m2_17"
     ]
   },
   {
@@ -583,7 +550,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Barbershop Problem.",
     "order": 16,
     "prerequisites": [
-      "os_m2_14"
+      "os_m2_17"
     ]
   },
   {
@@ -593,8 +560,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Classic Synchronization Problems.",
     "order": 17,
     "prerequisites": [
-      "os_m2_15",
-      "os_m2_16"
+      "os_m2_14"
     ]
   },
   {
@@ -613,9 +579,7 @@ export const osTopics: Topic[] = [
     "title": "Deadlock Examples",
     "description": "Learn about Deadlock Examples.",
     "order": 19,
-    "prerequisites": [
-      "os_m2_18"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m2_20",
@@ -623,9 +587,7 @@ export const osTopics: Topic[] = [
     "title": "Resource Concepts",
     "description": "Learn about Resource Concepts.",
     "order": 20,
-    "prerequisites": [
-      "os_m2_18"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m2_21",
@@ -633,9 +595,7 @@ export const osTopics: Topic[] = [
     "title": "Resource Types and Instances",
     "description": "Learn about Resource Types and Instances.",
     "order": 21,
-    "prerequisites": [
-      "os_m2_20"
-    ]
+    "prerequisites": []
   },
   {
     "id": "os_m2_22",
@@ -644,7 +604,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Deadlock Characterization.",
     "order": 22,
     "prerequisites": [
-      "os_m2_21"
+      "os_m2_18"
     ]
   },
   {
@@ -674,7 +634,7 @@ export const osTopics: Topic[] = [
     "description": "Learn about Deadlock Handling Methods.",
     "order": 25,
     "prerequisites": [
-      "os_m2_23"
+      "os_m2_24"
     ]
   },
   {

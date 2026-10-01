@@ -7,19 +7,19 @@ import Link from 'next/link';
 import OsDiagrams from '@/components/OsDiagrams';
 import { useLearningStore } from '@/store/useLearningStore';
 import { getTopicContent } from '@/lib/content';
-import DfaSimulator from '@/components/simulator/DfaSimulator';
+import OsLaboratoryRegistry from '@/components/simulator/os/OsLaboratoryRegistry';
 import { TopicStatus } from '@/types';
 
 export default function TopicPage() {
   const { topicId } = useParams() as { topicId: string };
   const router = useRouter();
-  
+
   const store = useLearningStore();
   const { isInitialized, progress, updateTopicStatus, updateTopicChecklist, updateTopicNotes } = store;
   const modules = store.modules.filter(m => m.subjectId === 'os');
   const moduleIds = new Set(modules.map(m => m.id));
   const topics = store.topics.filter(t => moduleIds.has(t.moduleId));
-  
+
   const [examMode, setExamMode] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [learningConfidence, setLearningConfidence] = useState(0);
@@ -30,9 +30,9 @@ export default function TopicPage() {
     if (isInitialized) {
       const p = progress.find(x => x.topicId === topicId);
       if (p) {
-        
+
         setNotes(p.notes || '');
-        
+
         // If not started, move to LEARNING immediately upon opening
         if (p.status === 'NOT_STARTED') {
           updateTopicStatus(topicId, 'LEARNING');
@@ -48,13 +48,13 @@ export default function TopicPage() {
     }
   };
 
-  
+
 
   if (!isInitialized) return <div className="p-12 text-slate-400">Loading topic...</div>;
 
   const topicIndex = topics.findIndex(t => t.id === topicId);
   const topic = topics[topicIndex];
-  
+
   if (!topic) {
     return <div className="p-12 text-red-400">Topic not found.</div>;
   }
@@ -66,11 +66,11 @@ export default function TopicPage() {
   const status = p?.status || 'LEARNING';
   const mastery = p?.mastery || 0;
 
-  
-  
-  
-  
-  
+
+
+
+
+
 
   const handleToggleComplete = async () => {
     if (status === 'COMPLETED' || status === 'MASTERED') {
@@ -137,7 +137,7 @@ export default function TopicPage() {
           <button onClick={() => setExamMode(false)} className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${!examMode ? 'bg-slate-800 text-slate-200' : 'text-slate-500 hover:text-slate-300'}`}>Study Mode</button>
           <button onClick={() => setExamMode(true)} className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${examMode ? 'bg-slate-800 text-slate-200' : 'text-slate-500 hover:text-slate-300'}`}>Exam Focus</button>
         </div>
-        
+
         <Link href="/os/practice" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
           <Target className="w-4 h-4"/> Practice Topic
         </Link>
@@ -149,7 +149,7 @@ export default function TopicPage() {
             <Clock className="w-8 h-8 text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-300 mb-2">Content Under Development</h3>
             <p className="text-slate-500 max-w-md mx-auto">
-              The detailed syllabus content for this topic is currently being authored. 
+              The detailed syllabus content for this topic is currently being authored.
               You can still practice questions related to this topic in the Practice Engine.
             </p>
           </div>
@@ -164,6 +164,21 @@ export default function TopicPage() {
 
             <OsDiagrams topicId={topicId as string} />
 
+            {content.labIntegrationPrompt && (
+              <section className="bg-blue-950/20 p-6 rounded-2xl border border-blue-900/30">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-blue-900/50 rounded-xl text-blue-400">
+                    <BookOpen className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-bold text-blue-400 uppercase tracking-widest mb-2">Laboratory Activity</h2>
+                    <p className="text-slate-300 leading-relaxed">{content.labIntegrationPrompt}</p>
+                  </div>
+                </div>
+              </section>
+            )}
+
+
             {content.formal && (
               <section>
                 <h2 className="text-sm font-mono text-slate-500 uppercase tracking-widest mb-4">Formal Definition</h2>
@@ -172,6 +187,117 @@ export default function TopicPage() {
                 </div>
               </section>
             )}
+
+
+            {content.variants && content.variants.length > 0 && (
+              <div className="space-y-8">
+                {content.variants.map((variant, vIdx) => (
+                  <section key={vIdx} className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                    <h2 className="text-sm font-mono text-purple-400 uppercase tracking-widest mb-4">Variant: {variant.variantName}</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {variant.selectionRule && (
+                        <div>
+                          <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">Selection Rule</h3>
+                          <p className="text-slate-300">{variant.selectionRule}</p>
+                        </div>
+                      )}
+                      {variant.preemptionBehavior && (
+                        <div>
+                          <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">Preemption</h3>
+                          <p className="text-slate-300">{variant.preemptionBehavior}</p>
+                        </div>
+                      )}
+                    </div>
+                    {variant.ganttChartProcedure && (
+                      <div className="mt-6 pt-6 border-t border-slate-800">
+                        <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Procedure</h3>
+                        <ul className="space-y-2">
+                          {variant.ganttChartProcedure.map((step, idx) => (
+                            <li key={idx} className="text-slate-300 text-sm flex gap-3">
+                              <span className="text-purple-500 opacity-50 shrink-0">{(idx + 1).toString().padStart(2, '0')}</span>
+                              {step.replace(/^\d+\.\s*/, '')}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </section>
+                ))}
+              </div>
+            )}
+
+{(content.selectionRule || content.preemptionBehavior || content.metricsFormulas) && (
+              <section className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
+                <h2 className="text-sm font-mono text-blue-400 uppercase tracking-widest mb-4">Algorithm Properties</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {content.selectionRule && (
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">Selection Rule</h3>
+                      <p className="text-slate-300">{content.selectionRule}</p>
+                    </div>
+                  )}
+                  {content.preemptionBehavior && (
+                    <div>
+                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">Preemption</h3>
+                      <p className="text-slate-300">{content.preemptionBehavior}</p>
+                    </div>
+                  )}
+                  {content.whenItIsUsed && (
+                    <div className="md:col-span-2">
+                      <h3 className="text-xs font-bold text-slate-500 uppercase mb-2">When to Use</h3>
+                      <p className="text-slate-300">{content.whenItIsUsed}</p>
+                    </div>
+                  )}
+                </div>
+                {content.metricsFormulas && (
+                  <div className="mt-6 pt-6 border-t border-slate-800">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Metrics & Formulas</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-sm">
+                      {Object.entries(content.metricsFormulas).map(([key, val]) => (
+                        <div key={key} className="bg-slate-950 p-3 rounded border border-slate-800">
+                          <span className="text-green-400 font-bold">{key}:</span> <span className="text-slate-400">{val}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {content.ganttChartProcedure && (
+                  <div className="mt-6 pt-6 border-t border-slate-800">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase mb-3">Procedure</h3>
+                    <ul className="space-y-2">
+                      {content.ganttChartProcedure.map((step, idx) => (
+                        <li key={idx} className="text-slate-300 text-sm flex gap-3">
+                          <span className="text-blue-500 opacity-50 shrink-0">{(idx + 1).toString().padStart(2, '0')}</span>
+                          {step.replace(/^d+.s*/, '')}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </section>
+            )}
+
+
+            {content.detailedExplanation && (
+              <section>
+                <h2 className="text-sm font-mono text-slate-500 uppercase tracking-widest mb-4">Detailed Explanation</h2>
+                <div className="text-slate-300 leading-relaxed space-y-4 whitespace-pre-wrap">
+                  {content.detailedExplanation}
+                </div>
+              </section>
+            )}
+
+            {content.keyPoints && content.keyPoints.length > 0 && (
+              <section>
+                <h2 className="text-sm font-mono text-slate-500 uppercase tracking-widest mb-4">Key Points</h2>
+                <ul className="list-disc pl-5 space-y-2 text-slate-300">
+                  {content.keyPoints.map((point, idx) => (
+                    <li key={idx} className="leading-relaxed">{point}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
 
             {!examMode && content.workedExamples && content.workedExamples.length > 0 && (
               <section>
@@ -183,11 +309,11 @@ export default function TopicPage() {
                         <BookOpen className="w-4 h-4 text-blue-400"/> Problem {idx + 1}
                       </h3>
                       <p className="text-slate-300 mb-6 font-medium">{ex.problem}</p>
-                      
+
                       <div className="pl-4 border-l-2 border-blue-900/50 space-y-4">
                         <h4 className="text-xs font-mono text-slate-500 uppercase">Solution</h4>
                         <div className="text-slate-400 whitespace-pre-wrap font-mono text-sm">{ex.solution}</div>
-                        
+
                         {ex.explanation && (
                           <div className="mt-4 bg-blue-950/20 text-blue-200/70 p-4 rounded-lg text-sm border border-blue-900/30">
                             <strong>Note:</strong> {ex.explanation}
@@ -214,11 +340,9 @@ export default function TopicPage() {
               </section>
             )}
 
-            {!examMode && topicId === 'top_dfa_diagram' && (
+            {!examMode && (
               <section className="pt-8">
-                <h2 className="text-sm font-mono text-blue-400 uppercase tracking-widest mb-4">Interactive Laboratory</h2>
-                <p className="text-slate-400 text-sm mb-6">Explore how a deterministic finite automaton processes a string mathematically.</p>
-                <DfaSimulator />
+                <OsLaboratoryRegistry topicId={topicId} />
               </section>
             )}
           </div>
@@ -226,8 +350,8 @@ export default function TopicPage() {
 
         <section className="border border-slate-800 bg-slate-900/40 rounded-2xl p-8">
           <h2 className="text-xl font-light mb-6">Learning Workflow</h2>
-          
-          
+
+
 
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 border-t border-slate-800 pt-6">
             <div className="text-sm text-slate-400">
@@ -245,16 +369,16 @@ export default function TopicPage() {
                 </div>
               )}
             </div>
-            
+
             {status === 'COMPLETED' || status === 'MASTERED' ? (
-              <button 
+              <button
                 onClick={handleToggleComplete}
                 className="w-full md:w-auto px-6 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium transition-all flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4"/> Reopen Topic
               </button>
             ) : (
-              <button 
+              <button
                 onClick={handleToggleComplete}
                 disabled={false}
                 className="w-full md:w-auto px-8 py-3 rounded-lg bg-green-600 hover:bg-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium transition-all"
@@ -273,7 +397,7 @@ export default function TopicPage() {
             <span className="text-sm">{prevTopic.title}</span>
           </Link>
         ) : <div />}
-        
+
         {nextTopic ? (
           <Link href={`/os/topic/${nextTopic.id}`} className="flex items-center gap-2 text-slate-400 hover:text-blue-400 transition-colors text-right">
             <span className="text-sm">{nextTopic.title}</span>

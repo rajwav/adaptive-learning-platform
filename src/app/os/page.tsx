@@ -20,7 +20,7 @@ export default function OSDashboard() {
   const startedTopics = osProgress.filter(p => p.status !== 'NOT_STARTED').length;
   const completedTopics = osProgress.filter(p => p.status === 'COMPLETED' || p.status === 'MASTERED').length;
   const masteredTopics = osProgress.filter(p => p.status === 'MASTERED').length;
-  
+
   // WHAT REMAINS
   const remainsByModule = modules.map(m => {
     const modTopics = topics.filter(t => t.moduleId === m.id);
@@ -38,7 +38,7 @@ export default function OSDashboard() {
   }
   let recommendedReason = nextAction?.reason[0];
   let isCurriculumProgression = true;
-  
+
   if (recommendedTopicId) {
     const p = progress.find(x => x.topicId === recommendedTopicId);
     if (p && (p.status === 'COMPLETED' || p.status === 'MASTERED')) {
@@ -101,23 +101,23 @@ export default function OSDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* NEXT SYLLABUS ITEM / ADAPTIVE ENGINE */}
         <div className="lg:col-span-2 space-y-8">
           <section className="bg-gradient-to-br from-blue-900/20 to-slate-900 border border-blue-900/30 p-8 rounded-3xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <BrainCircuit className="w-32 h-32 text-blue-400" />
             </div>
-            
+
             <h2 className="text-xs font-mono text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
               <Activity className="w-4 h-4" /> {isCurriculumProgression ? 'Next Syllabus Item' : 'Recommended Practice'}
             </h2>
-            
+
             {recTopic ? (
               <>
                 <h3 className="text-2xl font-light text-slate-100 mb-2">{recTopic.title}</h3>
                 <p className="text-slate-400 max-w-md mb-8">{recommendedReason}</p>
-                
+
                 <div className="flex gap-4">
                   <Link href={`/os/topic/${recTopic.id}`} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2">
                     Open Topic <ArrowRight className="w-4 h-4"/>
@@ -151,36 +151,60 @@ export default function OSDashboard() {
               )}
             </div>
           </section>
-        
+
           {/* STUDY MATERIALS */}
-          <section className="mt-8">
-            <h2 className="text-sm font-mono text-slate-500 mb-4 tracking-widest uppercase">Study Materials</h2>
-            <div className="space-y-4">
-              <div className="border border-slate-800 bg-slate-900/20 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-medium text-slate-200">OS CLASS NOTES</h3>
-                  <p className="text-slate-400">Complete Operating Systems classroom notes</p>
-                </div>
-                <Link href="/os/notes/classnotes" className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <BookOpen className="w-4 h-4"/> View Notes
-                </Link>
+          <section className="mt-8 space-y-8">
+            <div>
+              <h2 className="text-sm font-mono text-slate-500 mb-4 tracking-widest uppercase flex items-center gap-2">
+                <BookOpen className="w-4 h-4" /> OS LECTURE NOTES
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { title: 'Lecture 01', file: 'LECT 1 PPT.pdf' },
+                  { title: 'Lecture 02', file: 'LECT 2 PPT.pdf' },
+                  { title: 'Lecture 03', file: 'LECT 3 PPT.pdf' },
+                  { title: 'Lecture 04', file: 'LECT 4 PPT.pdf' },
+                  { title: 'Lecture 05', file: 'LECT 5 PPT.pdf' },
+                  { title: 'Lecture 06', file: 'LECT 6 PPT.pdf' },
+                ].map((lec, idx) => (
+                  <a key={idx} href={`/notes/os-lectures/${lec.file}`} target="_blank" rel="noopener noreferrer" className="border border-slate-800 bg-slate-900/40 hover:bg-slate-800 rounded-xl p-4 flex flex-col transition-colors group">
+                    <h3 className="text-md font-medium text-slate-200 group-hover:text-blue-400 transition-colors">{lec.title}</h3>
+                    <p className="text-xs text-slate-500 mt-1">{lec.file}</p>
+                  </a>
+                ))}
               </div>
-              <div className="border border-slate-800 bg-slate-900/20 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-medium text-slate-200">OS M1</h3>
-                  <p className="text-slate-400">OS Basics, Processes, Threads, CPU Scheduling</p>
-                </div>
-                <Link href="/os/notes/module-1" className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <BookOpen className="w-4 h-4"/> View Notes
-                </Link>
+            </div>
+
+            <div>
+              <h2 className="text-sm font-mono text-slate-500 mb-4 tracking-widest uppercase flex items-center gap-2">
+                <BookOpen className="w-4 h-4" /> OS TEXTBOOK
+              </h2>
+              <div className="grid grid-cols-1 gap-4">
+                <a href="/notes/os-book/Operating_Systems_Concepts_Galvin_7th_Edition_Book.pdf" target="_blank" rel="noopener noreferrer" className="border border-slate-800 bg-slate-900/40 hover:bg-slate-800 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors group">
+                  <div>
+                    <h3 className="text-md font-medium text-slate-200 group-hover:text-blue-400 transition-colors">Operating System Concepts (7th Edition)</h3>
+                    <p className="text-xs text-slate-500 mt-1">Silberschatz, Galvin & Gagne</p>
+                  </div>
+                </a>
               </div>
-              <div className="border border-slate-800 bg-slate-900/20 rounded-xl p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-medium text-slate-200">OS M2</h3>
-                  <p className="text-slate-400">Process Synchronization, Deadlocks</p>
-                </div>
-                <Link href="/os/notes/module-2" className="shrink-0 bg-slate-800 hover:bg-slate-700 text-slate-200 px-5 py-2 rounded-lg font-medium transition-colors flex items-center gap-2">
-                  <BookOpen className="w-4 h-4"/> View Notes
+            </div>
+
+            <div>
+              <h2 className="text-sm font-mono text-slate-500 mb-4 tracking-widest uppercase flex items-center gap-2">
+                <BookOpen className="w-4 h-4" /> SUPPLEMENTARY NOTES
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Link href="/os/notes/classnotes" className="border border-slate-800 bg-slate-900/20 hover:bg-slate-800 rounded-xl p-4 flex flex-col transition-colors group">
+                  <h3 className="text-md font-medium text-slate-200 group-hover:text-blue-400 transition-colors">OS CLASS NOTES</h3>
+                  <p className="text-xs text-slate-500 mt-1">Combined notes</p>
+                </Link>
+                <Link href="/os/notes/module-1" className="border border-slate-800 bg-slate-900/20 hover:bg-slate-800 rounded-xl p-4 flex flex-col transition-colors group">
+                  <h3 className="text-md font-medium text-slate-200 group-hover:text-blue-400 transition-colors">OS M1</h3>
+                  <p className="text-xs text-slate-500 mt-1">Module 1 specific</p>
+                </Link>
+                <Link href="/os/notes/module-2" className="border border-slate-800 bg-slate-900/20 hover:bg-slate-800 rounded-xl p-4 flex flex-col transition-colors group">
+                  <h3 className="text-md font-medium text-slate-200 group-hover:text-blue-400 transition-colors">OS M2</h3>
+                  <p className="text-xs text-slate-500 mt-1">Module 2 specific</p>
                 </Link>
               </div>
             </div>
@@ -191,7 +215,7 @@ export default function OSDashboard() {
         {/* SIDEBAR NAVIGATION */}
         <div className="space-y-4">
           <h2 className="text-sm font-mono text-slate-500 mb-4 tracking-widest uppercase">Laboratory Access</h2>
-          
+
           <Link href="/os/syllabus" className="flex items-center gap-3 p-4 rounded-xl border border-slate-800 bg-slate-900/40 hover:bg-slate-800 transition-colors group">
             <BookOpen className="w-5 h-5 text-slate-400 group-hover:text-blue-400" />
             <div>
