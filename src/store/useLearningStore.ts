@@ -32,10 +32,20 @@ interface LearningState {
   updateTopicNotes: (topicId: string, notes: string) => Promise<void>;
   updateTopicChecklist: (topicId: string, checklist: Record<string, boolean>) => Promise<void>;
   updateSettings: (settings: Partial<UserSettings>) => Promise<void>;
+  syncFromStorage: () => Promise<void>;
   exportData: () => Promise<string>;
   importData: (data: string, mode: 'MERGE' | 'REPLACE') => Promise<void>;
   resetLearningData: () => Promise<void>;
 }
+
+
+const broadcastSync = () => {
+  if (typeof window !== 'undefined') {
+    const ch = new BroadcastChannel('lms_sync');
+    ch.postMessage('SYNC');
+    ch.close();
+  }
+};
 
 export const useLearningStore = create<LearningState>((set, get) => ({
   isInitialized: false,
@@ -49,6 +59,18 @@ export const useLearningStore = create<LearningState>((set, get) => ({
   attempts: [],
   settings: null,
   nextAction: null,
+
+  
+  syncFromStorage: async () => {
+    const progress = await progressRepo.getAll();
+    const targets = await targetsRepo.getAll();
+    const errors = await errorsRepo.getAll();
+    const attempts = await attemptsRepo.getAll();
+    const settings = await settingsRepo.get();
+    const nextAction = calculateNextAction(progress, errors, targets);
+
+    set({ progress, targets, errors, attempts, settings, nextAction });
+  },
 
   init: async () => {
     await initializeSeedData();
@@ -72,12 +94,10 @@ export const useLearningStore = create<LearningState>((set, get) => ({
   },
 
   updateTopicStatus: async (topicId, status) => {
-    const { progress } = get();
-    const item = progress.find(p => p.topicId === topicId);
+    const progressList = await progressRepo.getAll();
+    const item = progressList.find(p => p.topicId === topicId);
     if (!item) return;
     
-    // Only update if it's moving forward, or manually set
-    // E.g. we don't want to downgrade MASTERED to PRACTICING unless forced
     const updated = { 
       ...item, 
       status,
@@ -85,17 +105,15 @@ export const useLearningStore = create<LearningState>((set, get) => ({
     };
     await progressRepo.save(updated);
     
-    const newProgress = progress.map(p => p.topicId === topicId ? updated : p);
-    set({ progress: newProgress, nextAction: calculateNextAction(newProgress, get().errors, get().targets) });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   recordPractice: async (attempt) => {
     await attemptsRepo.save(attempt);
     
-    // Auto-update progress based on attempt
-    const { progress, errors } = get();
-    const p = progress.find(x => x.topicId === attempt.topicId);
-    let newErrors = errors;
+    const progressList = await progressRepo.getAll();
+    const p = progressList.find(x => x.topicId === attempt.topicId);
     
     if (!attempt.isCorrect && attempt.errorType) {
       const err: ErrorRecord = {
@@ -110,10 +128,8 @@ export const useLearningStore = create<LearningState>((set, get) => ({
         timestamp: attempt.timestamp
       };
       await errorsRepo.save(err);
-      newErrors = [...errors, err];
     }
 
-    let newProgress = progress;
     if (p) {
       const updated = { ...p };
       updated.questionsAttempted += 1;
@@ -125,76 +141,68 @@ export const useLearningStore = create<LearningState>((set, get) => ({
       }
       updated.practiceAccuracy = (updated.questionsCorrect / updated.questionsAttempted) * 100;
       
-      // Auto transition to reviewing if mastered criteria met
       if (updated.status === 'PRACTICING' && updated.practiceAccuracy > 85 && updated.questionsAttempted > 5) {
         updated.status = 'REVIEWING';
-        updated.mastery = 50; // Arbitrary jump to indicate moving from practice to review
+        updated.mastery = 50; 
       }
       
       await progressRepo.save(updated);
-      newProgress = progress.map(x => x.topicId === attempt.topicId ? updated : x);
     }
 
-    const newAttempts = [...get().attempts, attempt];
-    set({ 
-      attempts: newAttempts, 
-      errors: newErrors, 
-      progress: newProgress,
-      nextAction: calculateNextAction(newProgress, newErrors, get().targets)
-    });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   updateTarget: async (target) => {
     await targetsRepo.save(target);
-    const { targets } = get();
-    const newTargets = targets.find(t => t.id === target.id) 
-      ? targets.map(t => t.id === target.id ? target : t)
-      : [...targets, target];
-    
-    set({ targets: newTargets, nextAction: calculateNextAction(get().progress, get().errors, newTargets) });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   deleteTarget: async (targetId) => {
     await targetsRepo.remove(targetId);
-    const newTargets = get().targets.filter(t => t.id !== targetId);
-    set({ targets: newTargets, nextAction: calculateNextAction(get().progress, get().errors, newTargets) });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   updateErrorType: async (errorId, errorType) => {
-    const { errors } = get();
-    const error = errors.find(e => e.id === errorId);
+    const errorsList = await errorsRepo.getAll();
+    const error = errorsList.find(e => e.id === errorId);
     if (!error) return;
     
     const updated = { ...error, errorType };
     await errorsRepo.save(updated);
     
-    const newErrors = errors.map(e => e.id === errorId ? updated : e);
-    set({ errors: newErrors });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   updateTopicNotes: async (topicId, notes) => {
-    const { progress } = get();
-    const p = progress.find(x => x.topicId === topicId);
+    const progressList = await progressRepo.getAll();
+    const p = progressList.find(x => x.topicId === topicId);
     if (!p) return;
     const updated = { ...p, notes };
     await progressRepo.save(updated);
-    set({ progress: progress.map(x => x.topicId === topicId ? updated : x) });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   updateTopicChecklist: async (topicId, checklist) => {
-    const { progress } = get();
-    const p = progress.find(x => x.topicId === topicId);
+    const progressList = await progressRepo.getAll();
+    const p = progressList.find(x => x.topicId === topicId);
     if (!p) return;
     const updated = { ...p, checklist };
     await progressRepo.save(updated);
-    set({ progress: progress.map(x => x.topicId === topicId ? updated : x) });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   updateSettings: async (newSettings) => {
-    const { settings } = get();
-    const updated = { ...settings, ...newSettings } as UserSettings;
+    const currentSettings = await settingsRepo.get();
+    const updated = { ...currentSettings, ...newSettings } as UserSettings;
     await settingsRepo.set(updated);
-    set({ settings: updated });
+    await get().syncFromStorage();
+    broadcastSync();
   },
 
   exportData: async () => {
@@ -250,3 +258,12 @@ export const useLearningStore = create<LearningState>((set, get) => ({
     await get().init();
   }
 }));
+
+if (typeof window !== 'undefined') {
+  const syncChannel = new BroadcastChannel('lms_sync');
+  syncChannel.onmessage = (event) => {
+    if (event.data === 'SYNC') {
+      useLearningStore.getState().syncFromStorage();
+    }
+  };
+}

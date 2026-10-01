@@ -1,4 +1,4 @@
-import { get, set } from 'idb-keyval';
+import { get, set, update } from 'idb-keyval';
 import { 
   Subject, Module, Topic, TopicProgress, Target, 
   PracticeAttempt, ErrorRecord, LearningSession, UserSettings, Question 
@@ -14,15 +14,20 @@ function createRepository<T>(storeKey: string) {
     setAll: async (data: T[]): Promise<void> => {
       await set(storeKey, data);
     },
-    save: async (item: T & { id?: string | number }): Promise<void> => {
-      const data = await get<T[]>(storeKey) || [];
-      const index = data.findIndex((d: any) => (d.id === (item as any).id) || (d.topicId === (item as any).topicId && !(item as any).id));
-      if (index >= 0) {
-        data[index] = item;
-      } else {
-        data.push(item);
-      }
-      await set(storeKey, data);
+    save: async (item: T & { id?: string | number }): Promise<T[]> => {
+      let finalData: T[] = [];
+      await update(storeKey, (val: any) => {
+        const data = val || [];
+        const index = data.findIndex((d: any) => (d.id === (item as any).id) || (d.topicId === (item as any).topicId && !(item as any).id));
+        if (index >= 0) {
+          data[index] = item;
+        } else {
+          data.push(item);
+        }
+        finalData = data;
+        return data;
+      });
+      return finalData;
     },
     remove: async (id: string | number): Promise<void> => {
       const data = await get<T[]>(storeKey) || [];
