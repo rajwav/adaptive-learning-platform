@@ -17,7 +17,7 @@ export default async function OSNotesPage({ params }: { params: Promise<{ module
     notFound();
   }
 
-  const moduleName = moduleId === 'classnotes' ? 'Class Notes' : moduleId === 'module-1' ? 'Module 1' : 'Module 2';
+  const moduleName = moduleId === 'classnotes' ? 'Class Notes' : moduleId === 'module-1' ? 'M1' : 'M2';
   
   // Explicitly mapping PDF paths
   const pdfPath = moduleId === 'classnotes' 
