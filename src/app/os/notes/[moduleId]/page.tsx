@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, FileQuestion } from 'lucide-react';
 
 export function generateStaticParams() {
   return [
+    { moduleId: 'classnotes' },
     { moduleId: 'module-1' },
     { moduleId: 'module-2' }
   ];
@@ -12,14 +13,18 @@ export function generateStaticParams() {
 export default async function OSNotesPage({ params }: { params: Promise<{ moduleId: string }> }) {
   const { moduleId } = await params;
   
-  if (moduleId !== 'module-1' && moduleId !== 'module-2') {
+  if (moduleId !== 'classnotes' && moduleId !== 'module-1' && moduleId !== 'module-2') {
     notFound();
   }
 
-  const moduleName = moduleId === 'module-1' ? 'Module 1' : 'Module 2';
+  const moduleName = moduleId === 'classnotes' ? 'Class Notes' : moduleId === 'module-1' ? 'Module 1' : 'Module 2';
   
   // Explicitly mapping PDF paths
-  const pdfPath = moduleId === 'module-1' ? '/notes/os-module-1/os_module1.pdf' : null;
+  const pdfPath = moduleId === 'classnotes' 
+    ? '/notes/os-classnotes/os_classnotes.pdf' 
+    : moduleId === 'module-1' 
+      ? '/notes/os-module-1/os_module1.pdf' 
+      : null;
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col">
